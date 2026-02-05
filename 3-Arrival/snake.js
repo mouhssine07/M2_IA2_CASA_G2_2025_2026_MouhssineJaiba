@@ -6,6 +6,12 @@ class Snake extends Vehicle {
         this.r = taille;
         this.voirLangue = false;
 
+        // Poids pour les comportements
+        this.seekWeight = 0.2;
+        this.avoidWeight = 2;
+        this.boundariesWeight = 1;
+        this.wanderWeight = 0;
+        
         // On crée la tête du snake
         this.head = new Vehicle(x, y, this.couleur);
         this.anneaux.push(this.head);
@@ -153,16 +159,32 @@ class Snake extends Vehicle {
         pop();
     }
 
-    update(target) {
+    applyBehaviors(target, obstacles=[]) {
         // La tête suit la cible
         // mais il ondule, donc il y a un petit déplacement sinusoïdal
         // perpendiculaire à la direction du mouvement
         //let forceSuivi = this.head.arrive(target, 20);
         let forceSuivi = this.head.arrive(target, 15);
+        forceSuivi.mult(this.seekWeight);
+
+        let forceBoundaries = this.head.boundaries(0, 0, width, height, 50);
+        forceBoundaries.mult(this.boundariesWeight);
+
+        let forceWander = this.head.wander();
+        forceWander.mult(this.wanderWeight);
+        /*
+        let forceAvoid = this.head.avoid(obstacles);
+        forceAvoid.mult(this.avoidWeight);
+        */
+
         this.head.applyForce(forceSuivi);
+        this.head.applyForce(forceBoundaries);
+        this.head.applyForce(forceWander);
+        // this.head.applyForce(forceAvoid);
         this.head.update();
 
         // On ajoute l'ondulation
+        /*
         let time = frameCount * 0.1;
         let angle = time;
         let amplitude = 3; // amplitude de l'ondulation
@@ -172,13 +194,20 @@ class Snake extends Vehicle {
         let perp = createVector(-direction.y, direction.x); // vecteur perpendiculaire
         this.head.pos.x += perp.x * offsetX;
         this.head.pos.y += perp.y * offsetY;
+*/
 
         // Chaque anneau suit l'anneau précédent
         for (let i = 1; i < this.anneaux.length; i++) {
             let anneau = this.anneaux[i];
             let anneauPrecedent = this.anneaux[i - 1];
             let forceSuivi = anneau.arrive(anneauPrecedent.pos, 15);
+            forceSuivi.mult(2);
+            
+            
+            // let forceAvoid = anneau.avoid(obstacles);
+            // forceAvoid.mult(this.avoidWeight);
             anneau.applyForce(forceSuivi);
+            // anneau.applyForce(forceAvoid);
             anneau.update();
         }
     }

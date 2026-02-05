@@ -64,7 +64,7 @@ class Vehicle {
 
     let seekForce = this.arrive(target);
     let avoidForce = this.avoid(obstacles);
-    // let avoidForce = this.avoidAvecVehicules(obstacles, vehicules);
+    //let avoidForce = this.avoidAvecVehicules(obstacles, vehicules);
     let separateForce = this.separate(vehicules);
     let boudariesForce = this.boundaries(0, 0, width, height, 50);
     let wanderForce = this.wander();

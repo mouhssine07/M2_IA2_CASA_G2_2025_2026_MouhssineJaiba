@@ -110,7 +110,8 @@ function draw() {
 
   snakes.forEach((snake, index) => {
     let cible = formationTargets[index % formationTargets.length];
-    snake.update(cible);
+    snake.applyBehaviors(cible);
+    // snake.applyBehaviors(target, obstacles);
     snake.show();
   });
 
@@ -136,7 +137,7 @@ function draw() {
         if (index === 0) {
           // le premier véhicule suit la souris avec arrivée
           steeringForce = vehicle.arrive(target);
-        //steeringForce = vehicle.wander();
+          //steeringForce = vehicle.wander();
         } else {
           // Je suis un suiveur, je poursuis le véhicule 
           // précédent avec arrivée
@@ -177,7 +178,7 @@ function draw() {
 function keyPressed() {
   if (key === 'd') {
     Vehicle.debug = !Vehicle.debug;
-  } else if(key === 'w') {
+  } else if (key === 'w') {
     // Je crée un nouveau véhicule en mode wander
     let v = new VehicleWander(random(width), random(height));
     v.r = 60; // plus grand
@@ -200,6 +201,20 @@ function keyPressed() {
     let taille = random(10, 50);
     // longueur random entre 5 et 30
     let length = floor(random(5, 30));
-    snakes.push(new Snake(mouseX, mouseY, length, taille, couleur));
+    let snake = new Snake(mouseX, mouseY, length, taille, couleur);
+    snakes.push(snake);
+
+
+    if (snakes.length > 1) {
+      // Le premier snake suivra la souris, mais les autres ne feront
+      // que du wander et du boundaries
+      snake.seekWeight = 0;
+      snake.wanderWeight = 2;
+      
+      snake.head.maxSpeed = 1.5;
+      snake.head.maxForce = 0.05;
+      snake.head.displaceRange = 0.1
+      snake.head.wanderRadius = 50;
+    }
   }
 }
